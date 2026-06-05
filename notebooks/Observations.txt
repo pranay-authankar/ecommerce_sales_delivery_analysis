@@ -1,0 +1,607 @@
+==========================================
+Observation: order_delivered_customer_date
+==========================================
+
+Missing Values Found:
+order_delivered_customer_date -> 2965 missing values
+
+Investigation:
+Analyzed order_status for rows where
+order_delivered_customer_date is missing.
+
+Findings:
+shipped      -> 1107
+canceled     -> 619
+unavailable  -> 609
+invoiced     -> 314
+processing   -> 301
+delivered    -> 8
+created      -> 5
+approved     -> 2
+
+Conclusion:
+Most missing delivery dates correspond to orders that
+were not completed or not yet delivered, which is a
+valid business scenario.
+
+Special Case:
+8 orders have status='delivered' but still have a
+missing delivery date. This appears to be a data
+quality issue.
+
+Decision:
+No imputation performed.
+Missing values will be retained because the actual
+delivery date is unknown and should not be replaced
+with estimated delivery dates.
+
+For delivery-time analysis, rows with missing
+actual delivery dates may be excluded.
+
+
+==================================
+Observation: order_approved_at
+==================================
+
+Missing Values Found:
+order_approved_at -> 160 missing values
+
+Investigation:
+Checked order_status for rows with
+missing approval timestamps.
+
+Findings:
+canceled  -> 141
+created   -> 5
+delivered -> 14
+
+Detailed Analysis:
+The 14 delivered orders contain valid
+carrier and customer delivery dates,
+indicating the orders were successfully
+processed and delivered.
+
+Conclusion:
+Approval likely occurred but the timestamp
+was not recorded.
+
+Decision:
+Treat as data quality issue.
+Missing values retained.
+No imputation performed.
+
+==========================================
+Observation: order_delivered_carrier_date
+==========================================
+
+Missing Values Found:
+order_delivered_carrier_date -> 1783
+
+Investigation:
+Checked order_status distribution for rows
+with missing carrier dates.
+
+Findings:
+unavailable -> 609
+canceled    -> 550
+invoiced    -> 314
+processing  -> 301
+created     -> 5
+approved    -> 2
+delivered   -> 2
+
+Detailed Analysis:
+Most missing values belong to orders that
+were never shipped, making the missing
+carrier date a valid business scenario.
+
+Special Cases:
+Two delivered orders contain missing carrier
+dates. One order has a valid customer delivery
+date, indicating shipment occurred but the
+carrier timestamp was not recorded.
+
+The second order has missing carrier and
+customer delivery dates despite having a
+delivered status, suggesting a data quality
+inconsistency.
+
+Decision:
+Missing values retained.
+No imputation performed.
+Anomalies documented for future reference.
+
+
+==================================
+Observation: Order Status Analysis
+==================================
+
+Order Status Distribution:
+
+delivered   -> 96478
+shipped     -> 1107
+canceled    -> 625
+unavailable -> 609
+invoiced    -> 314
+processing  -> 301
+created     -> 5
+approved    -> 2
+
+Insights:
+
+Approximately 97% of all orders were
+successfully delivered.
+
+Cancellation and unavailable orders
+represent a very small portion of the
+dataset.
+
+The dataset is heavily dominated by
+completed orders, making it suitable
+for sales and customer behavior analysis.
+
+
+==================================
+Delivery Time Analysis
+==================================
+
+Total Delivered Orders:
+96476
+
+Average Delivery Time:
+12.09 days
+
+Median Delivery Time:
+10 days
+
+75% of orders were delivered
+within 15 days.
+
+Maximum observed delivery time:
+209 days
+
+Further investigation required
+for unusually long delivery durations.
+
+
+
+
+==================================
+Products Table - Missing Values
+==================================
+
+Customers, Payments and Items tables
+contain no missing values.
+
+Products table contains missing values
+in product metadata columns.
+
+Missing counts:
+product_category_name         -> 610
+product_name_lenght           -> 610
+product_description_lenght    -> 610
+product_photos_qty            -> 610
+
+These identical counts suggest that
+the same set of products is missing
+descriptive information.
+
+Product dimension columns contain
+only 2 missing values each:
+- product_weight_g
+- product_length_cm
+- product_height_cm
+- product_width_cm
+
+Further investigation required before
+deciding any treatment.
+
+
+
+
+=====================================================================================
+Data quality audit completed.
+
+Major tables contain no duplicate records.
+Missing values are limited to expected business scenarios
+(orders) and product metadata fields (products).
+
+Dataset deemed suitable for analysis.
+=====================================================================================
+
+
+==================================
+Orders + Customers Merge
+==================================
+
+Merge Key:
+customer_id
+
+Merge Type:
+Inner Join
+
+Result:
+Rows    -> 99,441
+Columns -> 15
+
+New Columns Added:
+customer_unique_id
+customer_zip_code_prefix
+customer_city
+customer_state
+
+Observation:
+Row count remained unchanged after
+merge, indicating that every order
+has a corresponding customer record.
+
+This merged dataset enables
+customer location analysis.
+
+
+
+==================================
+Visualization: Top 10 States
+==================================
+
+A bar chart was created showing
+the top 10 states by order count.
+
+Observation:
+SP dominates order volume and
+significantly exceeds all other states.
+
+The chart confirms that customer
+demand is highly concentrated in
+a small number of states.
+
+
+
+==================================
+City-wise Order Analysis
+==================================
+
+Sao Paulo is the highest-order city,
+contributing approximately 15.6%
+of total orders.
+
+The top 10 cities contribute
+approximately 35.24% of all orders.
+
+Customer demand is concentrated
+in a relatively small number of
+major urban centers.
+
+Business Impact:
+Major cities should be prioritized
+for logistics, marketing and
+customer retention strategies.
+
+
+
+==================================
+Year-Month Order Trend Analysis
+==================================
+
+The business experienced rapid growth
+throughout 2017.
+
+Monthly orders increased from
+approximately 800 orders in Jan 2017
+to over 4600 orders by Oct 2017.
+
+November 2017 recorded a major spike
+of 7544 orders, the highest in the
+dataset.
+
+During 2018, order volume stabilized
+around 6000-7300 orders per month.
+
+The very low values in Sep 2018 and
+Oct 2018 are likely due to incomplete
+data and should not be interpreted
+as business decline.
+
+
+
+==================================
+Orders + Payments Merge
+==================================
+
+Merge Key:
+order_id
+
+Merge Type:
+Inner Join
+
+Result:
+Rows -> 103,886
+
+Observation:
+Row count increased because some
+orders contain multiple payment
+records.
+
+This is expected behavior and
+reflects real payment transactions.
+
+The merged dataset enables
+revenue and payment analysis.
+
+
+
+==================================
+Revenue Analysis
+==================================
+
+Total Revenue:
+16,008,872.12
+
+Average Payment Value:
+154.10
+
+Median Payment Value:
+100.00
+
+Observation:
+The mean payment value is
+significantly higher than the median,
+indicating a right-skewed distribution.
+
+Most transactions are relatively
+small, while a few very large
+transactions increase the average.
+
+Maximum payment value observed:
+13,664.08
+
+Some payment records have a value
+of zero and may require further
+investigation.
+
+
+
+==================================
+Monthly Revenue Trend Analysis
+==================================
+
+Revenue increased consistently
+throughout 2017, indicating strong
+business growth.
+
+November 2017 recorded a major
+revenue spike of approximately
+1.19 million.
+
+Revenue remained above 1 million
+for several months in 2018,
+suggesting business maturity and
+stability.
+
+April 2018 recorded the highest
+monthly revenue in the dataset.
+
+Very low values in Sep 2018 and
+Oct 2018 are likely due to
+incomplete data collection.
+
+
+==================================
+Payment Method Analysis
+==================================
+
+Credit cards account for
+approximately 74% of all payments,
+making them the dominant payment method.
+
+Boleto contributes around 19%
+of transactions and is the second
+most popular payment option.
+
+Credit Card and Boleto together
+represent approximately 93% of all
+payment transactions.
+
+Debit card usage is relatively low,
+accounting for less than 2% of
+transactions.
+
+Business Impact:
+Payment processing optimization
+should focus primarily on Credit
+Card and Boleto transactions.
+
+
+
+==================================
+Product Category Analysis
+==================================
+
+Top selling categories:
+1. Bed Bath Table
+2. Health Beauty
+3. Sports Leisure
+
+These three categories account
+for approximately 26.12% of all
+items sold in the marketplace.
+
+Observation:
+A relatively small number of
+categories contribute a large
+share of total sales volume.
+
+Business Impact:
+Marketing and inventory planning
+efforts should prioritize these
+high-demand categories.
+
+
+
+==================================
+Revenue by Product Category
+==================================
+
+Highest revenue category:
+Health Beauty
+
+Top Revenue Categories:
+1. Health Beauty
+2. Watches Gifts
+3. Bed Bath Table
+
+Observation:
+Sales volume and revenue rankings
+are not identical.
+
+Bed Bath Table sells the highest
+number of items but generates less
+revenue than Health Beauty.
+
+Watches Gifts generates very high
+revenue despite not being the top
+selling category by quantity.
+
+Business Impact:
+Revenue-focused marketing campaigns
+should prioritize Health Beauty,
+Watches Gifts, and Computers
+Accessories categories.
+
+
+
+==================================
+Average Product Price Analysis
+==================================
+
+Highest average price category:
+Computers (~1098)
+
+Observation:
+High-priced categories are not
+necessarily the highest revenue
+categories.
+
+Revenue depends on both product
+price and quantity sold.
+
+Computers represent a premium
+category with high average prices,
+while categories such as Health
+Beauty generate higher revenue
+through larger sales volume.
+
+Business Impact:
+Premium categories can contribute
+significant value even with lower
+sales volume.
+
+
+
+==================================
+Delivery Delay Analysis
+==================================
+
+Negative values indicate orders
+delivered before the estimated date.
+
+Positive values indicate late
+deliveries.
+
+Average delivery delay:
+-11.88 days
+
+Observation:
+Orders are typically delivered
+around 12 days earlier than the
+estimated delivery date.
+
+Median delay:
+-12 days
+
+This suggests delivery performance
+is consistently better than the
+promised delivery schedule.
+
+A few extreme cases exist, ranging
+from 147 days early to 188 days late.
+
+
+
+==================================
+On-Time Delivery KPI
+==================================
+
+Orders delivered on or before
+estimated delivery date:
+90.45%
+
+Late deliveries:
+9.55%
+
+Observation:
+Approximately 9 out of every
+10 orders are delivered on time.
+
+Business Impact:
+High on-time delivery rates can
+improve customer satisfaction
+and trust in the marketplace.
+
+
+
+==================================
+Delivery Performance by State
+==================================
+
+Fastest delivery state:
+SP (8.3 days)
+
+Slowest delivery state:
+RR (29.0 days)
+
+Observation:
+Delivery performance varies
+significantly across states.
+
+Customers in RR experience
+delivery times approximately
+21 days longer than customers
+in SP.
+
+Business Impact:
+Geographic location has a strong
+influence on logistics performance.
+
+States in northern regions tend
+to experience longer delivery
+times than states in the south
+and southeast.
+
+
+==================================
+Extreme Delay Analysis
+==================================
+
+Maximum delivery delay:
+188 days
+
+However, percentile analysis
+shows that extreme delays are
+rare outliers.
+
+90% of orders were delivered
+at least 2 days before the
+estimated delivery date.
+
+95% of orders were delayed
+by no more than 3 days.
+
+99% of orders were delayed
+by no more than 18 days.
+
+Conclusion:
+Overall delivery performance is
+strong, with a small number of
+exceptional cases causing very
+large delays.
